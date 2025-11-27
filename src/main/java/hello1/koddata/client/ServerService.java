@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -12,6 +13,8 @@ import java.util.concurrent.CountDownLatch;
 public class ServerService {
 
     private TerminalService terminalService;
+
+    private FileState fileState;
 
     private String host, username, password;
     private int port;
@@ -104,7 +107,13 @@ public class ServerService {
                 if (readBytes == -1) {
                     break;
                 }
-                if (readBytes > 0) {
+
+                if(fileState != null){
+                    fileState.receivedBuffer.put(buffer);
+                    if(!fileState.receivedBuffer.hasRemaining()){
+                        fileState.doSave();
+                    }
+                }else if (readBytes > 0) {
                     byte[] data = new byte[readBytes];
                     System.arraycopy(buffer, 0, data, 0, readBytes);
 
@@ -119,7 +128,35 @@ public class ServerService {
                         }
                     }
 
-                    if (terminalService != null) {
+                    if(data[0] == 'K' && data[1] == 'D'){
+                        //downloading file
+                        ByteBuffer buf = ByteBuffer.wrap(data);
+                        buf.get(); buf.get();
+
+                        int nameSize = buf.getInt();
+                        byte[] nameBytes = new byte[nameSize];
+                        buf.get(nameBytes);
+
+                        int dataSize = buf.getInt();
+
+                        byte[] fileData = new byte[dataSize];
+
+                        buf.get(fileData);
+
+                        ByteBuffer rbuf = ByteBuffer.allocate(dataSize);
+                        rbuf.put(fileData);
+
+                        fileState = new FileState();
+                        fileState.name = new String(nameBytes, StandardCharsets.UTF_8);
+                        fileState.expectedBytes = dataSize;
+                        fileState.receivedBuffer = rbuf;
+                        fileState.receivedBytes = rbuf.position();
+
+                        if(!fileState.receivedBuffer.hasRemaining()){
+                            fileState.doSave();
+                        }
+
+                    }else if (terminalService != null) {
                         terminalService.enqueueMessage(new String(data, StandardCharsets.UTF_8));
                     }
                 }
