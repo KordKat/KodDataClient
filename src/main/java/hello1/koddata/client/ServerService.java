@@ -107,7 +107,6 @@ public class ServerService {
                 if (readBytes == -1) {
                     break;
                 }
-                System.out.println("READ!");
                 if(fileState != null){
                     fileState.receivedBuffer.put(buffer);
                     if(!fileState.receivedBuffer.hasRemaining()){
