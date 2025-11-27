@@ -14,7 +14,7 @@ public class ServerService {
 
     private TerminalService terminalService;
 
-    private FileState fileState;
+    private FileState fileState = null;
 
     private String host, username, password;
     private int port;
@@ -80,9 +80,9 @@ public class ServerService {
         this.terminalService = terminalService;
     }
 
-    public boolean waitForLogin() {
+    public boolean waitForLogin(byte[] array) {
         if (waitingForLogin) return false;
-
+        enqueueSend(array);
         waitingForLogin = true;
         loginLatch = new CountDownLatch(1);
         loginSuccess = null;
@@ -107,7 +107,7 @@ public class ServerService {
                 if (readBytes == -1) {
                     break;
                 }
-
+                System.out.println("READ!");
                 if(fileState != null){
                     fileState.receivedBuffer.put(buffer);
                     if(!fileState.receivedBuffer.hasRemaining()){
@@ -119,11 +119,12 @@ public class ServerService {
 
                     if (waitingForLogin && data.length > 0) {
                         byte loginByte = data[0];
-                        if (loginByte == 1) {
-                            loginSuccess = true;
-                            loginLatch.countDown();
-                        } else if (loginByte == 2) {
+                        System.out.println("CHECKING CREDENTIALS");
+                        if (loginByte == 2) {
                             loginSuccess = false;
+                            loginLatch.countDown();
+                        }else {
+                            loginSuccess = true;
                             loginLatch.countDown();
                         }
                     }

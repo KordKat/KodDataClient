@@ -39,10 +39,10 @@ public class Main {
         }
 
         String password = argMap.getOrDefault("pass", "");
-        String sessionIdStr = argMap.getOrDefault("sessionId", "0");
+        String sessionIdStr = argMap.getOrDefault("sessionId", "-1");
 
         int port;
-        long sessionId;
+        long sessionId = -1;
 
         try {
             port = Integer.parseInt(portStr);
@@ -98,14 +98,13 @@ public class Main {
         byte[] array = new byte[cap];
         buffer.flip();
         buffer.get(array);
-        serverService.enqueueSend(array);
 
-        boolean loginResult = serverService.waitForLogin();
+        boolean loginResult = serverService.waitForLogin(array);
         if (!loginResult) {
             System.out.println("Login failed: Invalid credentials or session.");
             return;
         }
-
+        System.out.println("LOGGED IN");
         terminalService.start();
 
         terminalService.enqueueMessage("=====================================");
