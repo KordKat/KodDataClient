@@ -105,7 +105,7 @@ public class TerminalService {
                 String filename = path.getFileName().toString();
                 byte[] filenameBytes = filename.getBytes(StandardCharsets.UTF_8);
 
-                int totalLength = 1 + 4 + filenameBytes.length + fileBytes.length;
+                int totalLength = 1 + 8 + filenameBytes.length + fileBytes.length;
                 ByteBuffer buffer = ByteBuffer.allocate(totalLength);
 
                 buffer.put((byte) 1);
