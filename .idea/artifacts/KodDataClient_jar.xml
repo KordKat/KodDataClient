@@ -3,7 +3,6 @@
     <output-path>$PROJECT_DIR$/out/artifacts/KodDataClient_jar</output-path>
     <root id="archive" name="KodDataClient.jar">
       <element id="module-output" name="KodDataClient" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/jline/jline/3.30.0/jline-3.30.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

@@ -37,7 +37,6 @@ public class TerminalService {
         terminal = TerminalBuilder.builder().system(true).build();
         reader = LineReaderBuilder.builder()
                 .terminal(terminal)
-                .highlighter(new SyntaxHighlighter())
                 .build();
     }
 
@@ -96,7 +95,7 @@ public class TerminalService {
 
     private void doFlush(String cmd) {
         if (cmd.toLowerCase().startsWith("upload")) {
-            String pathStr = cmd.substring("upload".length(), cmd.length() - 1).trim();
+            String pathStr = cmd.substring("upload".length() + 1, cmd.length() - 2).trim();
 
             try {
                 Path path = Paths.get(pathStr);
