@@ -96,7 +96,7 @@ public class TerminalService {
 
     private void doFlush(String cmd) {
         if (cmd.toLowerCase().startsWith("upload")) {
-            String pathStr = cmd.substring("upload".length()).trim();
+            String pathStr = cmd.substring("upload".length(), cmd.length() - 1).trim();
 
             try {
                 Path path = Paths.get(pathStr);
