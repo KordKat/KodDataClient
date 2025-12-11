@@ -98,7 +98,6 @@ public class Main {
         byte[] array = new byte[cap];
         buffer.flip();
         buffer.get(array);
-        System.out.println("LLLLLL");
         boolean loginResult = serverService.waitForLogin(array);
         if (!loginResult) {
             System.out.println("Login failed: Invalid credentials or session.");

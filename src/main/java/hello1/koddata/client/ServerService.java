@@ -115,7 +115,7 @@ public class ServerService {
                     // finished?
                     if (!fileState.receivedBuffer.hasRemaining()) {
                         fileState.doSave();
-                        System.out.println("File saved: " + fileState.name);
+                        terminalService.enqueueMessage("File saved: " + fileState.name);
                         fileState = null;
                     }
 
@@ -126,10 +126,8 @@ public class ServerService {
                 if (readBytes > 0) {
                     byte[] data = new byte[readBytes];
                     System.arraycopy(buffer, 0, data, 0, readBytes);
-                    System.out.println("RRRR");
                     // login response
                     if (waitingForLogin) {
-                        System.out.println("LLL");
                         byte loginByte = data[0];
                         loginSuccess = loginByte != 2;
                         ByteBuffer byteBuf = ByteBuffer.wrap(data);

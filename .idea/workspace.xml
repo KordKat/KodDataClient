@@ -10,13 +10,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7327b814-94be-4325-8649-609a3a33358c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/hello1/koddata/client/SyntaxHighlighter.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/out/artifacts/KodDataClient_jar/KodDataClient.jar" beforeDir="false" afterPath="$PROJECT_DIR$/out/artifacts/KodDataClient_jar/KodDataClient.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello1/koddata/client/FileState.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hello1/koddata/client/FileState.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/hello1/koddata/client/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hello1/koddata/client/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/hello1/koddata/client/ServerService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hello1/koddata/client/ServerService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/hello1/koddata/client/TerminalService.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/hello1/koddata/client/TerminalService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
