@@ -100,75 +100,92 @@ public class ServerService {
     }
 
     private void doRead() {
-        byte[] buffer = new byte[8192];
+        byte[] buffer = new byte[1000000];
+
         try {
             while (running) {
                 int readBytes = inputStream.read(buffer);
-                if (readBytes == -1) {
-                    break;
-                }
-                if(fileState != null){
-                    fileState.receivedBuffer.put(buffer);
-                    if(!fileState.receivedBuffer.hasRemaining()){
+                if (readBytes == -1) break;
+
+                if (fileState != null) {
+                    // append only the valid readBytes
+                    fileState.receivedBuffer.put(buffer, 0, readBytes);
+                    fileState.receivedBytes += readBytes;
+
+                    // finished?
+                    if (!fileState.receivedBuffer.hasRemaining()) {
                         fileState.doSave();
+                        System.out.println("File saved: " + fileState.name);
+                        fileState = null;
                     }
-                }else if (readBytes > 0) {
+
+                    continue;
+                }
+
+                // normal packet handling
+                if (readBytes > 0) {
                     byte[] data = new byte[readBytes];
                     System.arraycopy(buffer, 0, data, 0, readBytes);
-
-                    if (waitingForLogin && data.length > 0) {
+                    System.out.println("RRRR");
+                    // login response
+                    if (waitingForLogin) {
+                        System.out.println("LLL");
                         byte loginByte = data[0];
-                        System.out.println("CHECKING CREDENTIALS");
-                        if (loginByte == 2) {
-                            loginSuccess = false;
-                            loginLatch.countDown();
-                        }else {
-                            loginSuccess = true;
-                            loginLatch.countDown();
-                        }
+                        loginSuccess = loginByte != 2;
+                        ByteBuffer byteBuf = ByteBuffer.wrap(data);
+                        byteBuf.get();
+                        sessionId = byteBuf.getInt();
+                        loginLatch.countDown();
                     }
 
-                    if(data[0] == 'K' && data[1] == 'D'){
-                        //downloading file
+                    // file header starts with 'K' 'D'
+                    if (data[0] == 'K' && data[1] == 'D') {
                         ByteBuffer buf = ByteBuffer.wrap(data);
-                        buf.get(); buf.get();
+                        buf.get(); buf.get(); // skip 'K','D'
 
                         int nameSize = buf.getInt();
                         byte[] nameBytes = new byte[nameSize];
                         buf.get(nameBytes);
 
-                        int dataSize = buf.getInt();
+                        int dataSize = buf.getInt();   // FULL file size
 
-                        byte[] fileData = new byte[dataSize];
+                        // first chunk of file
+                        byte[] firstChunk = new byte[buf.remaining()];
+                        buf.get(firstChunk);
 
-                        buf.get(fileData);
-
-                        ByteBuffer rbuf = ByteBuffer.allocate(dataSize);
-                        rbuf.put(fileData);
-
+                        // initialize receiver
                         fileState = new FileState();
                         fileState.name = new String(nameBytes, StandardCharsets.UTF_8);
                         fileState.expectedBytes = dataSize;
-                        fileState.receivedBuffer = rbuf;
-                        fileState.receivedBytes = rbuf.position();
+                        fileState.receivedBuffer = ByteBuffer.allocate(dataSize);
 
-                        if(!fileState.receivedBuffer.hasRemaining()){
+                        // store first chunk
+                        fileState.receivedBuffer.put(firstChunk);
+                        fileState.receivedBytes = firstChunk.length;
+
+                        // immediately done?
+                        if (!fileState.receivedBuffer.hasRemaining()) {
                             fileState.doSave();
+                            terminalService.enqueueMessage("File saved immediately: " + fileState.name);
+                            fileState = null;
                         }
 
-                    }else if (terminalService != null) {
+                        continue;
+                    }
+
+                    // fallback normal text message
+                    if (terminalService != null) {
                         terminalService.enqueueMessage(new String(data, StandardCharsets.UTF_8));
                     }
                 }
             }
         } catch (IOException e) {
-            if (running) {
-                e.printStackTrace();
-            }
+            if (running) e.printStackTrace();
         } finally {
             stop();
         }
     }
+
 
     private void doSend() {
         try {
@@ -190,6 +207,10 @@ public class ServerService {
         } finally {
             stop();
         }
+    }
+
+    public long getSessionId() {
+        return sessionId;
     }
 
     public void enqueueSend(byte[] buffer) {

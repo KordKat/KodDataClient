@@ -1,10 +1,8 @@
 package hello1.koddata.client;
 
 import java.io.IOException;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
-import java.nio.channels.CompletionHandler;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
@@ -16,17 +14,16 @@ public class FileState {
 
     public ByteBuffer receivedBuffer;
 
-
-    public void doSave(){
-        try(AsynchronousFileChannel afc = AsynchronousFileChannel.open(
-                Path.of(URI.create(name)),
-                StandardOpenOption.CREATE_NEW,
-                StandardOpenOption.READ,
-                StandardOpenOption.APPEND,
-                StandardOpenOption.WRITE
-        )){
-            afc.write(receivedBuffer.flip(), receivedBuffer.limit());
-        }catch (IOException ex){
+    public void doSave() {
+        try (AsynchronousFileChannel afc = AsynchronousFileChannel.open(
+                Path.of(name),
+                StandardOpenOption.CREATE,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.TRUNCATE_EXISTING
+        )) {
+            receivedBuffer.flip();                 // prepare for writing
+            afc.write(receivedBuffer, 0);          // write file starting at offset 0
+        } catch (IOException ex) {
             ex.printStackTrace();
         }
     }

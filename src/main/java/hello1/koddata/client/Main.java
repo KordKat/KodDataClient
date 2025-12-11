@@ -98,7 +98,7 @@ public class Main {
         byte[] array = new byte[cap];
         buffer.flip();
         buffer.get(array);
-
+        System.out.println("LLLLLL");
         boolean loginResult = serverService.waitForLogin(array);
         if (!loginResult) {
             System.out.println("Login failed: Invalid credentials or session.");
@@ -110,6 +110,7 @@ public class Main {
         terminalService.enqueueMessage("=====================================");
         terminalService.enqueueMessage("Welcome to KodData Shell v1.0!");
         terminalService.enqueueMessage("User: " + username);
+        terminalService.enqueueMessage("Session: " + serverService.getSessionId());
         terminalService.enqueueMessage("Connected to server at " + host + ":" + port);
         terminalService.enqueueMessage("=====================================");
     }

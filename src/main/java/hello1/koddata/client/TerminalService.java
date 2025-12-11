@@ -37,6 +37,7 @@ public class TerminalService {
         terminal = TerminalBuilder.builder().system(true).build();
         reader = LineReaderBuilder.builder()
                 .terminal(terminal)
+                .highlighter(new SyntaxHighlighter())
                 .build();
     }
 
@@ -117,6 +118,26 @@ public class TerminalService {
 
                 serverService.enqueueSend(dataToSend);
                 enqueueMessage("Uploading file: " + filename);
+
+            } catch (IOException e) {
+                enqueueMessage("Failed to read file: " + pathStr + " (" + e.getMessage() + ")");
+            }
+
+        }else if (cmd.toLowerCase().startsWith("consult")) {
+            String pathStr = cmd.substring("consult".length() + 1, cmd.length() - 2).trim();
+
+            try {
+                Path path = Paths.get(pathStr);
+                byte[] fileBytes = Files.readAllBytes(path);
+
+                String filename = path.getFileName().toString();
+                enqueueMessage("Executing: " + filename);
+
+                byte[] dataToSend = new byte[fileBytes.length + 1];
+                dataToSend[0] = 0;
+                System.arraycopy(fileBytes, 0, dataToSend, 1, fileBytes.length);
+
+                serverService.enqueueSend(dataToSend);
 
             } catch (IOException e) {
                 enqueueMessage("Failed to read file: " + pathStr + " (" + e.getMessage() + ")");
